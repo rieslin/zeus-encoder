@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZEUS Text Encoder/Decoder</title>
+  <style>
+    /* CSS Variables for easy theming */
+    :root {
+      --primary-color: #007bff;
+      --primary-hover: #0056b3;
+      --light-bg: #f4f4f4;
+      --light-text: #222;
+      --container-bg: #fff;
+      --border-color: #ccc;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --footer-color: #888;
+    }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--light-bg);
+      color: var(--light-text);
+      padding: 20px;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    /* Header styling with centered title and right-aligned controls */
+    header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1em;
+      background: linear-gradient(135deg, #0056b3, var(--primary-color));
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      font-size: 24px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .controls {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 10px;
+    }
+    .controls button {
+      padding: 8px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: #fff;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .controls button:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.03);
+    }
+    /* Main container styling */
+    .container {
+      max-width: 600px;
+      width: 90%;
+      background: var(--container-bg);
+      margin: 0 auto 2em;
+      padding: 1.5em;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px var(--shadow-color);
+      transition: background 0.3s ease;
+    }
+    textarea {
+      width: 100%;
+      height: 140px;
+      font-size: 16px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .buttons button {
+      flex: 1 1 150px;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: #fff;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .buttons button:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+    #output {
+      white-space: pre-wrap;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: var(--container-bg);
+      padding: 10px;
+      box-sizing: border-box;
+      min-height: 100px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 13px;
+      text-align: center;
+      color: var(--footer-color);
+    }
+    /* Fade-in animation for output */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* Dark mode styles */
+    .dark-mode {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
+    .dark-mode textarea,
+    .dark-mode #output {
+      background-color: #2c2c2c;
+      border-color: #444;
+      color: #f0f0f0;
+    }
+    .dark-mode header {
+      background: linear-gradient(135deg, #333, #555);
+    }
+    .dark-mode .controls button,
+    .dark-mode .buttons button {
+      background-color: #444;
+    }
+    .dark-mode .controls button:hover,
+    .dark-mode .buttons button:hover {
+      background-color: #666;
+    }
+    @media (max-width: 480px) {
+      header h1 { font-size: 20px; }
+      .controls { right: 5px; }
+      .controls button { padding: 6px 10px; font-size: 14px; }
+      .buttons button { padding: 8px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="pageTitle">🔡 ZEUS Text Encoder/Decoder</h1>
+    <div class="controls">
+      <button id="darkModeBtn">🌙 DARK</button>
+      <button id="langSwitchBtn">中文</button>
+    </div>
+  </header>
+
+  <textarea id="inputText" placeholder="Enter text to encode, or numeric code to decode..."></textarea>
+
+  <div class="buttons">
+    <button id="encodeBtn">Encode</button>
+    <button id="decodeBtn">Decode</button>
+  </div>
+
+  <div id="output">🔍 Result will appear here</div>
+
+  <footer id="signature">Created by rIEslin.zeusinsights @All Rights Reserved.</footer>
+
+  <!-- Load the JavaScript modules -->
+  <script src="common-chinese.js"></script>
+  <script src="encoder.js"></script>
+  <script>
+    // Translation dictionaries.
+    const translations = {
+      en: {
+        title: "ZEUS Text Encoder/Decoder",
+        placeholderInput: "Enter text to encode, or numeric code to decode...",
+        placeholderOutput: "Encoded or decoded result will appear here",
+        encodeBtn: "Encode",
+        decodeBtn: "Decode",
+        darkModeBtn: "DARK",
+        langSwitchBtn: "中文",
+        signature: "Created by rIEslin.zeusinsights @All Rights Reserved.",
+        outputPrefixEncode: "🔢 Encoded Result:\n",
+        outputPrefixDecode: "🈶 Decoded Result:\n"
+      },
+      zh: {
+        title: "ZEUS文本编码/解码器",
+        placeholderInput: "请输入要编码的文本，或粘贴要解码的数字编码...",
+        placeholderOutput: "编码或解码后的结果将显示在这里",
+        encodeBtn: "编码",
+        decodeBtn: "解码",
+        darkModeBtn: "深色",
+        langSwitchBtn: "English",
+        signature: "Created by rIEslin.zeusinsights @All Rights Reserved.",
+        outputPrefixEncode: "🔢 编码结果：\n",
+        outputPrefixDecode: "🈶 解码结果：\n"
+      }
+    };
+    let currentLang = "en";
+    
+    function updateTexts() {
+      document.getElementById("pageTitle").textContent = currentLang === "en" ? "🔡 ZEUS Text Encoder/Decoder" : "🔡 ZEUS文本编码/解码器";
+      document.getElementById("inputText").placeholder = translations[currentLang].placeholderInput;
+      document.getElementById("output").innerText = currentLang === "en" ? "🔍 Result will appear here" : "🔍 结果将在这里显示";
+      document.getElementById("encodeBtn").textContent = translations[currentLang].encodeBtn;
+      document.getElementById("decodeBtn").textContent = translations[currentLang].decodeBtn;
+      document.getElementById("darkModeBtn").textContent = translations[currentLang].darkModeBtn;
+      document.getElementById("langSwitchBtn").textContent = translations[currentLang].langSwitchBtn;
+      document.getElementById("signature").textContent = translations[currentLang].signature;
+    }
+    updateTexts();
+    
+    // Dark mode toggle.
+    document.getElementById("darkModeBtn").addEventListener("click", function() {
+      document.body.classList.toggle("dark-mode");
+      const btn = document.getElementById("darkModeBtn");
+      if (document.body.classList.contains("dark-mode")) {
+        btn.textContent = currentLang === "en" ? "☀ LIGHT" : "☀ 浅色";
+      } else {
+        btn.textContent = translations[currentLang].darkModeBtn;
+      }
+    });
+    
+    // Language switch toggle.
+    document.getElementById("langSwitchBtn").addEventListener("click", function() {
+      currentLang = currentLang === "en" ? "zh" : "en";
+      updateTexts();
+    });
+    
+    // Encoding/decoding functionality.
+    const inputEl = document.getElementById("inputText");
+    const outputEl = document.getElementById("output");
+    const encodeBtn = document.getElementById("encodeBtn");
+    const decodeBtn = document.getElementById("decodeBtn");
+    
+    function clearOutput() {
+      outputEl.innerText = "";
+      outputEl.style.animation = "none";  // reset animation
+      void outputEl.offsetWidth;          // trigger reflow
+      outputEl.style.animation = "fadeIn 0.5s forwards";
+    }
+    
+    encodeBtn.addEventListener("click", function() {
+      clearOutput();
+      const txt = inputEl.value;
+      try {
+        if (txt) {
+          const encoded = Encoder.encodeText(txt);
+          outputEl.innerText = (currentLang === "en" 
+                                  ? translations[currentLang].outputPrefixEncode 
+                                  : translations[currentLang].outputPrefixEncode) + encoded;
+        } else {
+          outputEl.innerText = currentLang === "en" ? "(Please enter text to encode)" : "（请输入要编码的文本）";
+        }
+      } catch (err) {
+        outputEl.innerText = "Error: " + err.message;
+      }
+    });
+    
+    decodeBtn.addEventListener("click", function() {
+      clearOutput();
+      const s = inputEl.value.replace(/\s+/g, "");
+      try {
+        if (s) {
+          if (/^[0-9]+$/.test(s) && s.length % 6 === 0) {
+            const decoded = Encoder.decodeText(s);
+            outputEl.innerText = (currentLang === "en" 
+                                   ? translations[currentLang].outputPrefixDecode 
+                                   : translations[currentLang].outputPrefixDecode) + decoded;
+          } else {
+            outputEl.innerText = currentLang === "en" ? "Invalid numeric code format." : "数字编码格式无效。";
+          }
+        } else {
+          outputEl.innerText = currentLang === "en" ? "(Please enter numeric code to decode)" : "（请输入要解码的数字编码）";
+        }
+      } catch (err) {
+        outputEl.innerText = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
